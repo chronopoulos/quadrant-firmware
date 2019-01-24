@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2019 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -95,7 +95,7 @@
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "Interstitial"
 #define USBD_PID_FS     0
-#define USBD_PRODUCT_STRING_FS     "Quadrant Rev 2"
+#define USBD_PRODUCT_STRING_FS     "Quadrant"
 #define USBD_SERIALNUMBER_STRING_FS     "00000000001A"
 #define USBD_CONFIGURATION_STRING_FS     "CDC Config"
 #define USBD_INTERFACE_STRING_FS     "CDC Interface"

@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f070x6.s
+  * @file      startup_stm32f070xb.s
   * @author    MCD Application Team
-  * @brief     STM32F070x4/STM32F070x6 devices vector table for GCC toolchain.
+  * @brief     STM32F070xb/STM32F070x8 devices vector table for GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -58,15 +58,6 @@ defined in linker script */
 /* end address for the .bss section. defined in linker script */
 .word _ebss
 
-/**
- * @brief  This is the code that gets called when the processor first
- *          starts execution following a reset event. Only the absolutely
- *          necessary set is performed, after which the application
- *          supplied main() routine is called.
- * @param  None
- * @retval : None
-*/
-
   .section .text.Reset_Handler
   .weak Reset_Handler
   .type Reset_Handler, %function
@@ -74,27 +65,6 @@ Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
 
-/*Check if boot space corresponds to test memory*/
- 
-    LDR R0,=0x00000004
-    LDR R1, [R0]
-    LSRS R1, R1, #24
-    LDR R2,=0x1F
-    CMP R1, R2
-    BNE ApplicationStart
-
- /*SYSCFG clock enable*/
-
-    LDR R0,=0x40021018
-    LDR R1,=0x00000001
-    STR R1, [R0]
-
-/*Set CFGR1 register with flash memory remap at address 0*/
-    LDR R0,=0x40010000
-    LDR R1,=0x00000000
-    STR R1, [R0]
-
-ApplicationStart:
 /* Copy the data segment initializers from flash to SRAM */
   ldr r0, =_sdata
   ldr r1, =_edata
@@ -198,19 +168,19 @@ g_pfnVectors:
   .word  TIM1_CC_IRQHandler                /* TIM1 Capture Compare         */
   .word  0                                 /* Reserved                     */
   .word  TIM3_IRQHandler                   /* TIM3                         */
-  .word  0                                 /* Reserved                     */
-  .word  0                                 /* Reserved                     */
+  .word  TIM6_IRQHandler                   /* TIM6                         */
+  .word  TIM7_IRQHandler                   /* TIM7                         */
   .word  TIM14_IRQHandler                  /* TIM14                        */
-  .word  0                                 /* Reserved                     */
+  .word  TIM15_IRQHandler                  /* TIM15                        */
   .word  TIM16_IRQHandler                  /* TIM16                        */
   .word  TIM17_IRQHandler                  /* TIM17                        */
   .word  I2C1_IRQHandler                   /* I2C1                         */
-  .word  0                                 /* Reserved                     */
+  .word  I2C2_IRQHandler                   /* I2C2                         */
   .word  SPI1_IRQHandler                   /* SPI1                         */
-  .word  0                                 /* Reserved                     */
+  .word  SPI2_IRQHandler                   /* SPI2                         */
   .word  USART1_IRQHandler                 /* USART1                       */
   .word  USART2_IRQHandler                 /* USART2                       */
-  .word  0                                 /* Reserved                     */
+  .word  USART3_4_IRQHandler               /* USART3 and USART4            */
   .word  0                                 /* Reserved                     */
   .word  USB_IRQHandler                    /* USB                          */
 
@@ -279,8 +249,17 @@ g_pfnVectors:
   .weak      TIM3_IRQHandler
   .thumb_set TIM3_IRQHandler,Default_Handler
 
+  .weak      TIM6_IRQHandler
+  .thumb_set TIM6_IRQHandler,Default_Handler
+
+  .weak      TIM7_IRQHandler
+  .thumb_set TIM7_IRQHandler,Default_Handler
+
   .weak      TIM14_IRQHandler
   .thumb_set TIM14_IRQHandler,Default_Handler
+
+  .weak      TIM15_IRQHandler
+  .thumb_set TIM15_IRQHandler,Default_Handler
 
   .weak      TIM16_IRQHandler
   .thumb_set TIM16_IRQHandler,Default_Handler
@@ -291,14 +270,23 @@ g_pfnVectors:
   .weak      I2C1_IRQHandler
   .thumb_set I2C1_IRQHandler,Default_Handler
 
+  .weak      I2C2_IRQHandler
+  .thumb_set I2C2_IRQHandler,Default_Handler
+
   .weak      SPI1_IRQHandler
   .thumb_set SPI1_IRQHandler,Default_Handler
+
+  .weak      SPI2_IRQHandler
+  .thumb_set SPI2_IRQHandler,Default_Handler
 
   .weak      USART1_IRQHandler
   .thumb_set USART1_IRQHandler,Default_Handler
 
   .weak      USART2_IRQHandler
   .thumb_set USART2_IRQHandler,Default_Handler
+
+  .weak      USART3_4_IRQHandler
+  .thumb_set USART3_4_IRQHandler,Default_Handler
 
   .weak      USB_IRQHandler
   .thumb_set USB_IRQHandler,Default_Handler

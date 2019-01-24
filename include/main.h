@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2019 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -74,7 +74,6 @@
  extern "C" {
 #endif
 void _Error_Handler(char *, int);
-void _Error_Handler_Slow(char *, int);
 
 #define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 #ifdef __cplusplus

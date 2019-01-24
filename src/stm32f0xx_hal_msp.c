@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2019 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -72,65 +72,61 @@ void HAL_MspInit(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 
-  __HAL_REMAP_PIN_ENABLE(HAL_REMAP_PA11_PA12);
-
   /* USER CODE BEGIN MspInit 1 */
 
   /* USER CODE END MspInit 1 */
 }
 
-void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
+void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct;
-  if(hadc->Instance==ADC1)
+  if(hi2c->Instance==I2C1)
   {
-  /* USER CODE BEGIN ADC1_MspInit 0 */
+  /* USER CODE BEGIN I2C1_MspInit 0 */
 
-  /* USER CODE END ADC1_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_ADC1_CLK_ENABLE();
+  /* USER CODE END I2C1_MspInit 0 */
   
-    /**ADC GPIO Configuration    
-    PA0     ------> ADC_IN0
-    PA2     ------> ADC_IN2
-    PA4     ------> ADC_IN4
-    PA6     ------> ADC_IN6 
+    /**I2C1 GPIO Configuration    
+    PB6     ------> I2C1_SCL
+    PB7     ------> I2C1_SDA 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_2|GPIO_PIN_4|GPIO_PIN_6;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF1_I2C1;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN ADC1_MspInit 1 */
+    /* Peripheral clock enable */
+    __HAL_RCC_I2C1_CLK_ENABLE();
+  /* USER CODE BEGIN I2C1_MspInit 1 */
 
-  /* USER CODE END ADC1_MspInit 1 */
+  /* USER CODE END I2C1_MspInit 1 */
   }
 
 }
 
-void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
+void HAL_I2C_MspDeInit(I2C_HandleTypeDef* hi2c)
 {
 
-  if(hadc->Instance==ADC1)
+  if(hi2c->Instance==I2C1)
   {
-  /* USER CODE BEGIN ADC1_MspDeInit 0 */
+  /* USER CODE BEGIN I2C1_MspDeInit 0 */
 
-  /* USER CODE END ADC1_MspDeInit 0 */
+  /* USER CODE END I2C1_MspDeInit 0 */
     /* Peripheral clock disable */
-    __HAL_RCC_ADC1_CLK_DISABLE();
+    __HAL_RCC_I2C1_CLK_DISABLE();
   
-    /**ADC GPIO Configuration    
-    PA0     ------> ADC_IN0
-    PA2     ------> ADC_IN2
-    PA4     ------> ADC_IN4
-    PA6     ------> ADC_IN6 
+    /**I2C1 GPIO Configuration    
+    PB6     ------> I2C1_SCL
+    PB7     ------> I2C1_SDA 
     */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|GPIO_PIN_2|GPIO_PIN_4|GPIO_PIN_6);
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6|GPIO_PIN_7);
 
-  /* USER CODE BEGIN ADC1_MspDeInit 1 */
+  /* USER CODE BEGIN I2C1_MspDeInit 1 */
 
-  /* USER CODE END ADC1_MspDeInit 1 */
+  /* USER CODE END I2C1_MspDeInit 1 */
   }
 
 }

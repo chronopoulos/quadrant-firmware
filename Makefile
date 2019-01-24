@@ -42,6 +42,7 @@ src/stm32f0xx_it.c \
 src/main.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_gpio.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c \
+Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pcd_ex.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c \
@@ -63,7 +64,7 @@ Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 
 ASM_SOURCES =  \
-startup_stm32f070x6.s
+startup_stm32f070xb.s
 
 # CFLAGS
 CPU = -mcpu=cortex-m0
@@ -74,7 +75,7 @@ AS_INCLUDES =
 
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32F070x6
+-DSTM32F070xB
 
 C_INCLUDES =  \
 -Iinclude \
@@ -96,7 +97,7 @@ endif
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 
 # link script
-LDSCRIPT = STM32F070F6Px_FLASH.ld
+LDSCRIPT = STM32F070CBTx_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
