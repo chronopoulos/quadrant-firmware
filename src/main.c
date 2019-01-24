@@ -3,13 +3,12 @@
 #include "usb_device.h"
 
 #define ADDR7_DEFAULT 0x29
-
 #define ADDR7_NORTH 0x2a
 #define ADDR7_EAST 0x2b
 #define ADDR7_SOUTH 0x2c
 #define ADDR7_WEST 0x2d
-
 #define MODEL_ID 0xb4
+#define THRESH 160
 
 I2C_HandleTypeDef hi2c1;
 
@@ -177,31 +176,46 @@ int main(void) {
 
     bringUpSensors();
 
+    // initialize the USB buffer
+    uint8_t usb_buf[5];
+    int i;
+    for (i=0; i<4; i++) {
+        usb_buf[i] = 0;
+    }
+    usb_buf[4] = 10; // newline
+
+    // main loop
     while (1) {
 
-        if (measureRange(ADDR7_NORTH) < 128) {
+        usb_buf[0] = measureRange(ADDR7_NORTH);
+        if (usb_buf[0] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
         } else {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
         }
 
-        if (measureRange(ADDR7_EAST) < 128) {
+        usb_buf[1] = measureRange(ADDR7_EAST);
+        if (usb_buf[1] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
         } else {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
         }
 
-        if (measureRange(ADDR7_SOUTH) < 128) {
+        usb_buf[2] = measureRange(ADDR7_SOUTH);
+        if (usb_buf[2] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
         } else {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
         }
 
-        if (measureRange(ADDR7_WEST) < 128) {
+        usb_buf[3] = measureRange(ADDR7_WEST);
+        if (usb_buf[3] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
         } else {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
         }
+
+        CDC_Transmit_FS(&usb_buf, 5);
 
     }
 
