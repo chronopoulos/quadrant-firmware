@@ -6,7 +6,7 @@
 
 ADC_HandleTypeDef hadc;
 
-uint8_t USB_BUF[9];
+uint8_t USB_BUF[17];
 uint32_t adcResult = 0;
 
 uint16_t IR_PINS_ARRAY[4] = {GPIO_PIN_1, GPIO_PIN_3, GPIO_PIN_5, GPIO_PIN_7};
@@ -27,17 +27,18 @@ int main(void) {
     MX_ADC_Init();
     MX_USB_DEVICE_Init();
 
-    int i;
+    uint32_t i;
 
     // initialize USB_BUF to zeros,newline
-    for (i=0; i<8; i++) {
+    for (i=0; i<16; i++) {
         USB_BUF[i] = 0;
     }
-    USB_BUF[8] = 10; // newline
+    USB_BUF[16] = 10; // newline
 
     // main loop
     while (1) {
 
+        // measure signal
         for (i=0; i<4; i++) {
 
             HAL_GPIO_WritePin(GPIOA, IR_PINS_ARRAY[i], GPIO_PIN_SET);
@@ -55,8 +56,24 @@ int main(void) {
 
         }
 
-        CDC_Transmit_FS(&USB_BUF, 9);
+        // measure background
+        for (i=0; i<4; i++) {
 
+            HAL_ADC_Start(&hadc);
+            if (HAL_ADC_PollForConversion(&hadc, 10) != HAL_OK) {
+                _Error_Handler(__FILE__, __LINE__);
+            }
+            adcResult = 4096 - HAL_ADC_GetValue(&hadc);
+
+            USB_BUF[8 + 2*i] = adcResult >> 8;
+            USB_BUF[8 + 2*i+1] = adcResult >> 0;
+
+        }
+
+        // transmit over USB
+        CDC_Transmit_FS(&USB_BUF, 17);
+
+        // throttle
         HAL_Delay(30);
 
     }
