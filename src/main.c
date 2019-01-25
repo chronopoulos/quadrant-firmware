@@ -79,9 +79,6 @@ void loadSettings(uint8_t devAddr7) {
     // Recommended : Public registers - See data sheet for more detail
     write8(devAddr7, 0x0011, 0x10);       // Enables polling for 'New Sample ready'
                                 // when measurement completes
-    write8(devAddr7, 0x010a, 0x30);       // Set the averaging sample period
-                                // (compromise between lower noise and
-                                // increased execution time)
     write8(devAddr7, 0x003f, 0x46);       // Sets the light and dark gain (upper
                                 // nibble). Dark gain should not be
                                 // changed.
@@ -99,6 +96,11 @@ void loadSettings(uint8_t devAddr7) {
                                 // to 500ms
     write8(devAddr7, 0x0014, 0x24);       // Configures interrupt on 'New Sample
                                 // Ready threshold event'
+
+    // timing parameters
+    write8(devAddr7, 0x01c, 15); // set max convergence time to 15 ms
+    write8(devAddr7, 0x10a, 48); // Set the averaging sample period to 4.3 ms
+
 }
 
 void checkModelID(uint8_t devAddr7) {
