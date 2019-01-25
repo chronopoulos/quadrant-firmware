@@ -90,16 +90,15 @@ void loadSettings(uint8_t devAddr7) {
                                 // of the ranging sensor
 
     // Optional: Public registers - See data sheet for more detail
-    write8(devAddr7, 0x001b, 0x09);       // Set default ranging inter-measurement
-                                // period to 100ms
     write8(devAddr7, 0x003e, 0x31);       // Set default ALS inter-measurement period
                                 // to 500ms
     write8(devAddr7, 0x0014, 0x24);       // Configures interrupt on 'New Sample
                                 // Ready threshold event'
 
     // timing parameters
-    write8(devAddr7, 0x01c, 15); // set max convergence time to 15 ms
-    write8(devAddr7, 0x10a, 48); // Set the averaging sample period to 4.3 ms
+    write8(devAddr7, 0x01c, 20);    // set max convergence time to 20 ms
+    write8(devAddr7, 0x10a, 48);    // Set the averaging sample period to 4.3 ms
+    write8(devAddr7, 0x001b, 2); // Set range intermeasurement period to 30 ms
 
 }
 
@@ -166,6 +165,22 @@ uint8_t measureRange(uint8_t devAddr7) {
 
 }
 
+uint8_t readRangeContinuous(uint8_t devAddr7) {
+
+    uint8_t result;
+
+    while ( !(read8(devAddr7, 0x4f) & 0x04) ) { // read from INTERRUPT_STATUS_GPIO
+        // spin
+    }
+
+    result = read8(devAddr7, 0x62); // read from RESULT_RANGE_VAL
+
+    write8(devAddr7, 0x15, 0x07); // write 0x07 to SYSTEM_INTERRUPT_CLEAR
+
+    return result;
+
+}
+
 int main(void) {
 
     HAL_Init();
@@ -186,31 +201,37 @@ int main(void) {
     }
     usb_buf[4] = 10; // newline
 
+    // set all four sensors to continous ranging mode
+    write8(ADDR7_NORTH, 0x18, 0x03);
+    write8(ADDR7_EAST, 0x18, 0x03);
+    write8(ADDR7_SOUTH, 0x18, 0x03);
+    write8(ADDR7_WEST, 0x18, 0x03);
+
     // main loop
     while (1) {
 
-        usb_buf[0] = measureRange(ADDR7_NORTH);
+        usb_buf[0] = readRangeContinuous(ADDR7_NORTH);
         if (usb_buf[0] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
         } else {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
         }
 
-        usb_buf[1] = measureRange(ADDR7_EAST);
+        usb_buf[1] = readRangeContinuous(ADDR7_EAST);
         if (usb_buf[1] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
         } else {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
         }
 
-        usb_buf[2] = measureRange(ADDR7_SOUTH);
+        usb_buf[2] = readRangeContinuous(ADDR7_SOUTH);
         if (usb_buf[2] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
         } else {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
         }
 
-        usb_buf[3] = measureRange(ADDR7_WEST);
+        usb_buf[3] = readRangeContinuous(ADDR7_WEST);
         if (usb_buf[3] < THRESH) {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
         } else {
