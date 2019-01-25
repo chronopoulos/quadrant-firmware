@@ -201,14 +201,16 @@ int main(void) {
     }
     usb_buf[4] = 10; // newline
 
-    // set all four sensors to continous ranging mode
-    write8(ADDR7_NORTH, 0x18, 0x03);
-    write8(ADDR7_EAST, 0x18, 0x03);
-    write8(ADDR7_SOUTH, 0x18, 0x03);
-    write8(ADDR7_WEST, 0x18, 0x03);
-
     // main loop
     while (1) {
+
+        // start range conversion on all four sensors
+        write8(ADDR7_NORTH, 0x18, 0x01);
+        write8(ADDR7_EAST, 0x18, 0x01);
+        write8(ADDR7_SOUTH, 0x18, 0x01);
+        write8(ADDR7_WEST, 0x18, 0x01);
+
+        // now read from each one
 
         usb_buf[0] = readRangeContinuous(ADDR7_NORTH);
         if (usb_buf[0] < THRESH) {
