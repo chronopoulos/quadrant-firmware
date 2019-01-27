@@ -8,7 +8,7 @@
 #define ADDR7_SOUTH 0x2c
 #define ADDR7_WEST 0x2d
 #define MODEL_ID 0xb4
-#define THRESH 160
+#define THRESH 180
 
 I2C_HandleTypeDef hi2c1;
 
