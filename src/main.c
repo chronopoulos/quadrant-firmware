@@ -1,14 +1,4 @@
-#include "main.h"
-#include "stm32f0xx_hal.h"
-#include "usb_device.h"
-
-#define ADDR7_DEFAULT 0x29
-#define ADDR7_NORTH 0x2a
-#define ADDR7_EAST 0x2b
-#define ADDR7_SOUTH 0x2c
-#define ADDR7_WEST 0x2d
-#define MODEL_ID 0xb4
-#define THRESH 180
+#include "quadrant.h"
 
 I2C_HandleTypeDef hi2c1;
 
@@ -104,8 +94,7 @@ void loadSettings(uint8_t devAddr7) {
 
 void checkModelID(uint8_t devAddr7) {
 
-    // check model ID
-    if (read8(devAddr7, 0x00) != MODEL_ID) {
+    if (read8(devAddr7, 0x00) != VL_MODEL_ID) {
         _Error_Handler(__FILE__, __LINE__);
     }
 
@@ -114,32 +103,32 @@ void checkModelID(uint8_t devAddr7) {
 void bringUpSensors(void) {
 
     // north
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(NORTH_EN_PORT, NORTH_EN_PIN, GPIO_PIN_SET);
     HAL_Delay(100); // TODO check for ready state
-    write8(ADDR7_DEFAULT, 0x212, ADDR7_NORTH);
-    loadSettings(ADDR7_NORTH);
-    checkModelID(ADDR7_NORTH);
+    write8(VL_ADDR7_DEFAULT, 0x212, NORTH_ADDR7);
+    loadSettings(NORTH_ADDR7);
+    checkModelID(NORTH_ADDR7);
 
     // east
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(EAST_EN_PORT, EAST_EN_PIN, GPIO_PIN_SET);
     HAL_Delay(100); // TODO check for ready state
-    write8(ADDR7_DEFAULT, 0x212, ADDR7_EAST);
-    loadSettings(ADDR7_EAST);
-    checkModelID(ADDR7_EAST);
+    write8(VL_ADDR7_DEFAULT, 0x212, EAST_ADDR7);
+    loadSettings(EAST_ADDR7);
+    checkModelID(EAST_ADDR7);
 
     // south
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(SOUTH_EN_PORT, SOUTH_EN_PIN, GPIO_PIN_SET);
     HAL_Delay(100); // TODO check for ready state
-    write8(ADDR7_DEFAULT, 0x212, ADDR7_SOUTH);
-    loadSettings(ADDR7_SOUTH);
-    checkModelID(ADDR7_SOUTH);
+    write8(VL_ADDR7_DEFAULT, 0x212, SOUTH_ADDR7);
+    loadSettings(SOUTH_ADDR7);
+    checkModelID(SOUTH_ADDR7);
 
     // west
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(WEST_EN_PORT, WEST_EN_PIN, GPIO_PIN_SET);
     HAL_Delay(100); // TODO check for ready state
-    write8(ADDR7_DEFAULT, 0x212, ADDR7_WEST);
-    loadSettings(ADDR7_WEST);
-    checkModelID(ADDR7_WEST);
+    write8(VL_ADDR7_DEFAULT, 0x212, WEST_ADDR7);
+    loadSettings(WEST_ADDR7);
+    checkModelID(WEST_ADDR7);
 
 }
 
@@ -205,39 +194,39 @@ int main(void) {
     while (1) {
 
         // start range conversion on all four sensors
-        write8(ADDR7_NORTH, 0x18, 0x01);
-        write8(ADDR7_EAST, 0x18, 0x01);
-        write8(ADDR7_SOUTH, 0x18, 0x01);
-        write8(ADDR7_WEST, 0x18, 0x01);
+        write8(NORTH_ADDR7, 0x18, 0x01);
+        write8(EAST_ADDR7, 0x18, 0x01);
+        write8(SOUTH_ADDR7, 0x18, 0x01);
+        write8(WEST_ADDR7, 0x18, 0x01);
 
         // now read from each one
 
-        usb_buf[0] = readRangeContinuous(ADDR7_NORTH);
-        if (usb_buf[0] < THRESH) {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+        usb_buf[0] = readRangeContinuous(NORTH_ADDR7);
+        if (usb_buf[0] < LED_THRESH) {
+            HAL_GPIO_WritePin(NORTH_LED_PORT, NORTH_LED_PIN, GPIO_PIN_SET);
         } else {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(NORTH_LED_PORT, NORTH_LED_PIN, GPIO_PIN_RESET);
         }
 
-        usb_buf[1] = readRangeContinuous(ADDR7_EAST);
-        if (usb_buf[1] < THRESH) {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
+        usb_buf[1] = readRangeContinuous(EAST_ADDR7);
+        if (usb_buf[1] < LED_THRESH) {
+            HAL_GPIO_WritePin(EAST_LED_PORT, EAST_LED_PIN, GPIO_PIN_SET);
         } else {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(EAST_LED_PORT, EAST_LED_PIN, GPIO_PIN_RESET);
         }
 
-        usb_buf[2] = readRangeContinuous(ADDR7_SOUTH);
-        if (usb_buf[2] < THRESH) {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+        usb_buf[2] = readRangeContinuous(SOUTH_ADDR7);
+        if (usb_buf[2] < LED_THRESH) {
+            HAL_GPIO_WritePin(SOUTH_LED_PORT, SOUTH_LED_PIN, GPIO_PIN_SET);
         } else {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(SOUTH_LED_PORT, SOUTH_LED_PIN, GPIO_PIN_RESET);
         }
 
-        usb_buf[3] = readRangeContinuous(ADDR7_WEST);
-        if (usb_buf[3] < THRESH) {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+        usb_buf[3] = readRangeContinuous(WEST_ADDR7);
+        if (usb_buf[3] < LED_THRESH) {
+            HAL_GPIO_WritePin(WEST_LED_PORT, WEST_LED_PIN, GPIO_PIN_SET);
         } else {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(WEST_LED_PORT, WEST_LED_PIN, GPIO_PIN_RESET);
         }
 
         CDC_Transmit_FS(&usb_buf, 5);
@@ -323,24 +312,40 @@ static void MX_GPIO_Init(void) {
     __HAL_RCC_GPIOF_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
 
-    // Configure port A pins : PA2, PA3, PA6
-    GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_6;
+    // Configure port A pins : 0, 7, 8, 15
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    // Configure port B pins : PB0, PB4, PB8, PB10, PB12
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_4 | GPIO_PIN_8 | GPIO_PIN_10 | GPIO_PIN_12;
+    // Configure port B pins : 0, 4, 15 
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_4 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    // Configure port C pins : 13
+    GPIO_InitStruct.Pin = GPIO_PIN_13;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
     // Initialize all GPIO outputs low
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_6, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_4|GPIO_PIN_8|GPIO_PIN_10|GPIO_PIN_12, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_15, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_4|GPIO_PIN_15, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+
+}
+
+void leds_off(void) {
+
+    HAL_GPIO_WritePin(GPIOB, EAST_LED_PIN | SOUTH_LED_PIN | WEST_LED_PIN, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, NORTH_LED_PIN, GPIO_PIN_RESET);
 
 }
 
@@ -348,17 +353,20 @@ void _Error_Handler(char *file, int line) {
 
     while(1) {
 
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_12|GPIO_PIN_4|GPIO_PIN_8, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+        leds_off();
+        HAL_GPIO_WritePin(NORTH_LED_PORT, NORTH_LED_PIN, GPIO_PIN_SET);
         HAL_Delay(100);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_12|GPIO_PIN_4|GPIO_PIN_8, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);
+
+        leds_off();
+        HAL_GPIO_WritePin(EAST_LED_PORT, EAST_LED_PIN, GPIO_PIN_SET);
         HAL_Delay(100);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_12|GPIO_PIN_4|GPIO_PIN_8, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+
+        leds_off();
+        HAL_GPIO_WritePin(SOUTH_LED_PORT, SOUTH_LED_PIN, GPIO_PIN_SET);
         HAL_Delay(100);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_12|GPIO_PIN_4|GPIO_PIN_8, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+
+        leds_off();
+        HAL_GPIO_WritePin(WEST_LED_PORT, WEST_LED_PIN, GPIO_PIN_SET);
         HAL_Delay(100);
 
     }
